@@ -7,7 +7,6 @@ def Cosine(dataA, dataB):
     sumData = arrayA.T.dot(arrayB)
     print(sumData)
     denom = np.linalg.norm(arrayA) * np.linalg.norm(arrayB)
-    # 归一化
     return 0.5 + 0.5 * (sumData / denom)
 
 
@@ -16,7 +15,6 @@ def CosineBeta(dataA, dataB):
     arrayB = np.mat(dataB)
     sumData = arrayA * arrayB.T  # 若列为向量则为 dataA.T * dataB
     denom = np.linalg.norm(arrayA) * np.linalg.norm(arrayB)
-    # 归一化
     return 0.5 + 0.5 * (sumData / denom)[0, 0]
 
 
