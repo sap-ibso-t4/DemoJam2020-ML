@@ -9,6 +9,9 @@ class CostOptimizer:
         self.__load_data()
         self.__build_graph()
 
+    def run(self):
+        return self.edgeArr
+
     @staticmethod
     def __get_min_indicator(dict, idx):
         arr = []
@@ -45,23 +48,23 @@ class CostOptimizer:
         self.__prepare_graph_data()
 
     def __load_data(self):
-        self.engineDF = pd.read_csv("data/raw/engine.csv")
-        self.alternatorDF = pd.read_csv("data/raw/alternator.csv")
-        self.pistonDF = pd.read_csv("data/raw/pistons.csv")
-        self.oil_pumpDF = pd.read_csv("data/raw/oil_pump.csv")
-        self.engine_frameDF = pd.read_csv("data/raw/frame.csv")
-        self.alternator_fanDF = pd.read_csv("data/raw/alternator_fan.csv")
-        self.electrical_ringDF = pd.read_csv("data/raw/electrical_ring.csv")
-        self.alternator_skeletonDF = pd.read_csv("data/raw/alternator_skeleton.csv")
+        self.engineDF = pd.read_csv("../data/raw/engine.csv")
+        self.alternatorDF = pd.read_csv("../data/raw/alternator.csv")
+        self.pistonDF = pd.read_csv("../data/raw/pistons.csv")
+        self.oil_pumpDF = pd.read_csv("../data/raw/oil_pump.csv")
+        self.engine_frameDF = pd.read_csv("../data/raw/frame.csv")
+        self.alternator_fanDF = pd.read_csv("../data/raw/alternator_fan.csv")
+        self.electrical_ringDF = pd.read_csv("../data/raw/electrical_ring.csv")
+        self.alternator_skeletonDF = pd.read_csv("../data/raw/alternator_skeleton.csv")
 
-        self.engine = pd.read_csv("data/raw/engine.csv").to_dict()
-        self.alternator = pd.read_csv("data/raw/alternator.csv").to_dict()
-        self.piston = pd.read_csv("data/raw/pistons.csv").to_dict()
-        self.oil_pump = pd.read_csv("data/raw/oil_pump.csv").to_dict()
-        self.engine_frame = pd.read_csv("data/raw/frame.csv").to_dict()
-        self.alternator_fan = pd.read_csv("data/raw/alternator_fan.csv").to_dict()
-        self.electrical_ring = pd.read_csv("data/raw/electrical_ring.csv").to_dict()
-        self.alternator_skeleton = pd.read_csv("data/raw/alternator_skeleton.csv").to_dict()
+        self.engine = pd.read_csv("../data/raw/engine.csv").to_dict()
+        self.alternator = pd.read_csv("../data/raw/alternator.csv").to_dict()
+        self.piston = pd.read_csv("../data/raw/pistons.csv").to_dict()
+        self.oil_pump = pd.read_csv("../data/raw/oil_pump.csv").to_dict()
+        self.engine_frame = pd.read_csv("../data/raw/frame.csv").to_dict()
+        self.alternator_fan = pd.read_csv("../data/raw/alternator_fan.csv").to_dict()
+        self.electrical_ring = pd.read_csv("../data/raw/electrical_ring.csv").to_dict()
+        self.alternator_skeleton = pd.read_csv("../data/raw/alternator_skeleton.csv").to_dict()
 
 
 if __name__ == "__main__":
