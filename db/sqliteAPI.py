@@ -1,10 +1,12 @@
 import sqlite3
 import pandas as pd
+import os
 
 
 class SqliteAPI:
-    def __init__(self):
-        self.conn = sqlite3.connect('material.db')
+    def __init__(self, db):
+        dbpath = os.path.join('./', db)
+        self.conn = sqlite3.connect(dbpath)
 
     def execute(self, query):
         return pd.read_sql(query, con=self.conn)
@@ -14,6 +16,7 @@ class SqliteAPI:
 
 
 if __name__ == "__main__":
-    api = SqliteAPI()
-    df = api.execute('select * from engine')
+    api = SqliteAPI('tempDataMining.db')
+    df = api.execute('select * from engineNormal')
+    api.close()
     print(df)
