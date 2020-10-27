@@ -53,9 +53,9 @@ class ItemCFRec:
     # 计算物品之间的相似度
     def ItemSimilarityBest(self):
         print("开始计算物品之间的相似度")
-        if os.path.exists("../data/ml-1m/item_sim.json"):
+        if os.path.exists("../csvData/ml-1m/item_sim.json"):
             print("物品相似度从文件加载 ...")
-            itemSim = json.load(open("../data/ml-1m/item_sim.json", "r"))
+            itemSim = json.load(open("../csvData/ml-1m/item_sim.json", "r"))
         else:
             itemSim = dict()
             item_user_count = dict()  # 得到每个物品有多少用户产生过行为
@@ -76,7 +76,7 @@ class ItemCFRec:
                 for j, cuv in related_items.items():
                     itemSim[i].setdefault(j, 0)
                     itemSim[i][j] = cuv / math.sqrt(item_user_count[i] * item_user_count[j])
-        json.dump(itemSim, open('../data/ml-1m/item_sim.json', 'w'))
+        json.dump(itemSim, open('../csvData/ml-1m/item_sim.json', 'w'))
         return itemSim
 
     """
@@ -114,6 +114,6 @@ class ItemCFRec:
 
 
 if __name__ == "__main__":
-    ib = ItemCFRec("../data/ml-1m/ratings.dat", [1, 9])
+    ib = ItemCFRec("../csvData/ml-1m/ratings.dat", [1, 9])
     print("用户1进行推荐的结果如下：{}".format(ib.recommend("1")))
     # print("准确率为： {}".format(ib.precision()))

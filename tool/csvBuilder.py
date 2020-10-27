@@ -147,4 +147,4 @@ def build_csv(PATH):
     df.to_csv(path_or_buf=PATH, sep=",", index=False)
 
 
-build_csv("../data/raw/electrical_ring.csv")
+build_csv("../csvData/raw/electrical_ring.csv")

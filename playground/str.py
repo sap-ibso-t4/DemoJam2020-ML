@@ -16,7 +16,7 @@ str = random_pick(firms) + " " + random_pick(countries) + " A" + str(rd.randrang
 print(str)
 print(rd.uniform(450, 550))
 
-PATH = '../data/raw/frame.csv'
+PATH = '../csvData/raw/frame.csv'
 df = pd.read_csv(PATH)
 df["category description"] = df["category description"].replace("alternator", "frame")
 df.to_csv(path_or_buf=PATH, sep=",", index=False)
