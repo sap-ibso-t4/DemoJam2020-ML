@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from db import SqliteAPI
 
 
 class CostOptimizer:

@@ -1,10 +1,19 @@
 import sqlite3
+import pandas as pd
 
-conn = sqlite3.connect('material.db')
-c = conn.cursor()
 
-cursor = c.execute('SELECT * FROM ENGINE')
-for row in cursor:
-    print(row)
+class SqliteAPI:
+    def __init__(self):
+        self.conn = sqlite3.connect('material.db')
 
-conn.close()
+    def execute(self, query):
+        return pd.read_sql(query, con=self.conn)
+
+    def close(self):
+        self.conn.close()
+
+
+if __name__ == "__main__":
+    api = SqliteAPI()
+    df = api.execute('select * from engine')
+    print(df)
