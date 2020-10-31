@@ -1,2 +1,4 @@
 .idea/
 csvData/ml-1m
+db/__pycache__
+data/ml-1m
