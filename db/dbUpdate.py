@@ -3,7 +3,7 @@ import pandas as pd
 import random as rd
 import datetime
 
-db = SqliteAPI('material.db')
+db = SqliteAPI('material.database_file')
 
 
 def random_pick(raw_data):
@@ -19,7 +19,7 @@ def random_date(start_date, end_date):
 
 def updateMaterial():
     # get current material ID
-    count = db.select('select material_id from material order by material_id desc limit 1')
+    count = db.dql('dql material_id from material order by material_id desc limit 1')
     init_material_id = 0
     for row in count:
         init_material_id = row[0]
@@ -79,7 +79,7 @@ def updateMaterial():
         #     s["rank"])
 
         print(query)
-        db.update(query)
+        db.dml(query)
         db.commit()
 
 
@@ -89,7 +89,7 @@ def update_vendor():
             if (firm, country) == list[i]:
                 return i + 1
 
-    data = db.select('select * from material')
+    data = db.dql('dql * from material')
     check_list = []
 
     for row in data:
@@ -107,7 +107,7 @@ def update_vendor():
                     get_vendor_id(firm, country, check_list),
                     firm + " " + country + " Broker",
                     country)
-                db.update(query)
+                db.dml(query)
                 db.commit()
         else:
             query = "insert into vendor (material_id, vendor, vendor_description, country) \
@@ -116,7 +116,7 @@ def update_vendor():
                 0,
                 'Central Engine Broker',
                 'China')
-            db.update(query)
+            db.dml(query)
             db.commit()
 
 
@@ -126,7 +126,7 @@ def update_plant():
             if (firm, country) == list[i]:
                 return i + 1
 
-    data = db.select('select * from material where material_type <> 1')
+    data = db.dql('dql * from material where material_type <> 1')
     check_list = []
 
     for row in data:
@@ -143,7 +143,7 @@ def update_plant():
                 get_plant_id(firm, country, check_list),
                 firm + " " + country + " Factory",
                 country)
-            db.update(query)
+            db.dml(query)
             db.commit()
 
 
