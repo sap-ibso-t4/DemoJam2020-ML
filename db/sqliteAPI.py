@@ -1,5 +1,4 @@
 import sqlite3
-import pandas as pd
 import os
 
 
@@ -8,15 +7,21 @@ class SqliteAPI:
         dbpath = os.path.join('./', db)
         self.conn = sqlite3.connect(dbpath)
 
-    def execute(self, query):
-        return pd.read_sql(query, con=self.conn)
+    def commit(self):
+        self.conn.commit()
+
+    def rollback(self):
+        self.conn.rollback()
+
+    def update(self, query):
+        c = self.conn.cursor()
+        print("Open database successfully")
+        c.execute(query)
+
+    def select(self, query):
+        c = self.conn.cursor()
+        print("Open database successfully")
+        return c.execute(query)
 
     def close(self):
         self.conn.close()
-
-
-if __name__ == "__main__":
-    api = SqliteAPI('tempDataMining.db')
-    df = api.execute('select * from engineNormal')
-    api.close()
-    print(df)
