@@ -3,7 +3,7 @@ import pandas as pd
 import random as rd
 import datetime
 
-db = SqliteAPI('material.database_file')
+db = SqliteAPI('material.db')
 
 
 def random_pick(raw_data):

@@ -1,72 +1,41 @@
-import pandas as pd
 import numpy as np
-from db import SqliteAPI
+from db import SqliteAPI, data_frame_to_internal_table
+from main.CategoryItemOptimizer import CategoryItemOptimizer
 
 
 class CostOptimizer:
-    def __init__(self, material):
-        self.material = material
+    """
+    Cost optimizer for mbom
+    """
 
-        self.__load_data()
-        self.__build_graph()
+    def __init__(self, category_key):
+        self.category_key = category_key
+        self.material_types = self.__get_all_category_related_material_type()
+        self.materials = []
 
-    def run(self):
-        return self.edgeArr
+    def __get_all_category_related_material_type(self):
+        material_db = SqliteAPI('../db/material.db')
+        query = "select material_type from material where ref_type = {} \
+                 group by material_type".format(
+            self.category_key
+        )
+        material_type_internal_table = data_frame_to_internal_table(material_db.dql_with_df(query))
+        material_db.close()
+        return material_type_internal_table
 
-    @staticmethod
-    def __get_min_indicator(dict, idx):
-        arr = []
+    def __get_optimized_materials(self):
+        materials = []
+        for line in self.material_types:
+            material = CategoryItemOptimizer(line["material_type"]).process()
+            materials.append(material)
+        return materials
 
-        for key, values in dict.items():
-            if key == "material ID":
-                arr.append(values[idx])
-            elif key == "level":
-                arr.append(values[idx])
-            elif key == "description":
-                arr.append(values[idx])
-            elif key == "category":
-                arr.append(values[idx])
-            elif key == "hierarchy category":
-                arr.append(values[idx])
-            elif key == "price":
-                arr.append(values[idx])
-
-        return arr
-
-    def __prepare_graph_data(self):
-        self.edgeArr = []
-        self.edgeArr.append(self.__get_min_indicator(self.engine, self.engineDF["price"].idxmin()))
-        self.edgeArr.append(self.__get_min_indicator(self.alternator, self.alternatorDF["price"].idxmin()))
-        self.edgeArr.append(self.__get_min_indicator(self.piston, self.pistonDF["price"].idxmin()))
-        self.edgeArr.append(self.__get_min_indicator(self.oil_pump, self.oil_pumpDF["price"].idxmin()))
-        self.edgeArr.append(self.__get_min_indicator(self.engine_frame, self.engine_frameDF["price"].idxmin()))
-        self.edgeArr.append(self.__get_min_indicator(self.alternator_fan, self.alternator_fanDF["price"].idxmin()))
-        self.edgeArr.append(self.__get_min_indicator(self.electrical_ring, self.electrical_ringDF["price"].idxmin()))
-        self.edgeArr.append(
-            self.__get_min_indicator(self.alternator_skeleton, self.alternator_skeletonDF["price"].idxmin()))
-
-    def __build_graph(self):
-        self.__prepare_graph_data()
-
-    def __load_data(self):
-        self.engineDF = pd.read_csv("../csvData/raw/engine.csv")
-        self.alternatorDF = pd.read_csv("../csvData/raw/alternator.csv")
-        self.pistonDF = pd.read_csv("../csvData/raw/pistons.csv")
-        self.oil_pumpDF = pd.read_csv("../csvData/raw/oil_pump.csv")
-        self.engine_frameDF = pd.read_csv("../csvData/raw/frame.csv")
-        self.alternator_fanDF = pd.read_csv("../csvData/raw/alternator_fan.csv")
-        self.electrical_ringDF = pd.read_csv("../csvData/raw/electrical_ring.csv")
-        self.alternator_skeletonDF = pd.read_csv("../csvData/raw/alternator_skeleton.csv")
-
-        self.engine = pd.read_csv("../csvData/raw/engine.csv").to_dict()
-        self.alternator = pd.read_csv("../csvData/raw/alternator.csv").to_dict()
-        self.piston = pd.read_csv("../csvData/raw/pistons.csv").to_dict()
-        self.oil_pump = pd.read_csv("../csvData/raw/oil_pump.csv").to_dict()
-        self.engine_frame = pd.read_csv("../csvData/raw/frame.csv").to_dict()
-        self.alternator_fan = pd.read_csv("../csvData/raw/alternator_fan.csv").to_dict()
-        self.electrical_ring = pd.read_csv("../csvData/raw/electrical_ring.csv").to_dict()
-        self.alternator_skeleton = pd.read_csv("../csvData/raw/alternator_skeleton.csv").to_dict()
+    def process(self):
+        self.materials = self.__get_optimized_materials()
+        print(self.materials)
+        print(len(self.materials))
 
 
 if __name__ == "__main__":
-    costOpt = CostOptimizer('engine')
+    costOpt = CostOptimizer(2)
+    costOpt.process()

@@ -16,7 +16,7 @@ class SqliteAPI:
         dbpath = os.path.join('./', database_file)
         self.conn = sqlite3.connect(dbpath)
         self.c = self.conn.cursor()
-        print("Open database successfully")
+        print("Open database: {} successfully".format(database_file))
 
     def commit(self):
         """
@@ -67,6 +67,7 @@ class SqliteAPI:
 if __name__ == "__main__":
     from db.dict_to_itab import data_frame_to_internal_table
 
-    db = SqliteAPI('material.database_file')
+    db = SqliteAPI('material.db')
     df = db.dql_with_df('select * from material')
     internal_table = data_frame_to_internal_table(df)
+    print(internal_table)
