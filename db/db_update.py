@@ -17,7 +17,7 @@ def random_date(start_date, end_date):
     return start_date + datetime.timedelta(days=random_number_of_days)
 
 
-def updateMaterial():
+def update_material():
     # get current material ID
     count = db.dql('dql material_id from material order by material_id desc limit 1')
     init_material_id = 0
@@ -148,7 +148,7 @@ def update_plant():
 
 
 if __name__ == "__main__":
-    # updateMaterial()
+    # update_material()
     # update_plant()
     update_vendor()
     db.close()

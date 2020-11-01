@@ -40,7 +40,7 @@ class CategoryItemOptimizer(object):
         denom = np.linalg.norm(data_a) * np.linalg.norm(data_b)
         return 0.5 + 0.5 * (sum_data / denom)
 
-    def __item_CF(self):
+    def __item_cross_filter(self):
         """
         item based cross filter
         :return: closest material
@@ -131,7 +131,7 @@ class CategoryItemOptimizer(object):
         main process method
         :return: closest material
         """
-        index = self.__item_CF()
+        index = self.__item_cross_filter()
         material = self.raw_material[index]
         return material
 
