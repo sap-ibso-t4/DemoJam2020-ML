@@ -16,7 +16,6 @@ class SqliteAPI:
         dbpath = os.path.join('./', database_file)
         self.conn = sqlite3.connect(dbpath)
         self.c = self.conn.cursor()
-        print("Open database: {} successfully".format(database_file))
 
     def commit(self):
         """

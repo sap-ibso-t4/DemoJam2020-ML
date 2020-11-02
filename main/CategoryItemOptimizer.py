@@ -13,20 +13,44 @@ class CategoryItemOptimizer(object):
         :param material_type:
         """
         self.material_type = material_type
-        self.raw_material = self.__load_material()
+        self.item_profile, self.materials = self.__load_material()
 
     def __load_material(self):
         """
         Load material from db
         :return: material internal table
         """
+
+        def normalization(df):
+            """
+            Internal normalization
+            :param df:
+            :return: dt
+            """
+            df_pre = df.select_dtypes(include=['float64', 'int64'])
+            df_pre = df_pre.drop(columns=[
+                'material_id',
+                'material_group',
+                'material_type',
+                'ref_type'
+            ])
+            df_norm = df_pre.apply(
+                lambda x: (x - np.min(x)) / (np.max(x) - np.min(x)) if (np.max(x) - np.min(x)) != 0 else 0)
+            df_head = list(df_norm.columns)
+            df[df_head] = df_norm
+            return df
+
         data_db = SqliteAPI('../db/material.db')
         query = "select * from material where material_type = {}".format(
             self.material_type
         )
-        material_internal_table = data_frame_to_internal_table(data_db.dql_with_df(query))
+
+        raw_df = data_db.dql_with_df(query)
+        normalized_df = normalization(raw_df.copy())
+        item_profile = data_frame_to_internal_table(normalized_df)
+        material_internal_table = data_frame_to_internal_table(raw_df)
         data_db.close()
-        return material_internal_table
+        return item_profile, material_internal_table
 
     @staticmethod
     def __cosine(data_a, data_b):
@@ -58,7 +82,7 @@ class CategoryItemOptimizer(object):
 
             # pick item profile
             item_profile_array = []
-            for line in self.raw_material:
+            for line in self.item_profile:
                 gross_weight = line["gross_weight"]
                 net_weight = line["net_weight"]
                 volume = line["volumn"]
@@ -96,9 +120,9 @@ class CategoryItemOptimizer(object):
             # here using price
             lowest_weight = 0
             material_index = 0
-            for i in range(len(self.raw_material)):
-                if lowest_weight > self.__get_customized_weight(self.raw_material[i]):
-                    lowest_weight = self.__get_customized_weight(self.raw_material[i])
+            for i in range(len(self.item_profile)):
+                if lowest_weight > self.__get_customized_weight(self.item_profile[i]):
+                    lowest_weight = self.__get_customized_weight(self.item_profile[i])
                     material_index = i
 
         return material_index
@@ -132,7 +156,7 @@ class CategoryItemOptimizer(object):
         :return: closest material
         """
         index = self.__item_cross_filter()
-        material = self.raw_material[index]
+        material = self.materials[index]
         return material
 
 
