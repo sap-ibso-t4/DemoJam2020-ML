@@ -3,6 +3,7 @@ from main.CategoryItemOptimizer import CategoryItemOptimizer
 import numpy as np
 from scipy.sparse.csgraph import shortest_path
 from scipy.sparse import csr_matrix
+import random as rd
 
 
 class CostOptimizer:
@@ -14,6 +15,7 @@ class CostOptimizer:
         self.INIT_EDGE = .1  # very minor constant for edge
         self.material_group = material_group
         self.material_types = self.__get_all_category_related_material_type()
+        self.tree = self.__random_generate_tree()
 
     def __get_all_category_related_material_type(self):
         """
@@ -97,10 +99,39 @@ class CostOptimizer:
             [0, 0, self.INIT_EDGE, 0, 0, 0, 0, 0, 0]
         ])
         graph = csr_matrix(adjacency_matrix)
-        print(graph)
-        D, Pr = shortest_path(graph, directed=False, method='D', return_predecessors=True)
-        print(D[0, 1])
-        print(Pr[0, 1])
+        d, pr = shortest_path(graph, directed=False, method='D', return_predecessors=True)
+        return d, pr
+
+    def __random_generate_tree(self):
+        def build_tree_layer(current_layer_id):
+            current_layer_id = current_layer_id + 1
+            layer = []
+            for i in range(rd.randint(1, 15)):
+                node = {}
+                node["text"] = mat_int[rd.randint(0, len(mat_int) - 1)]["material_id"]
+                node["ref"] = ""
+                rd_choice = rd.choice([True, False])
+                if rd_choice and current_layer_id <= 3:
+                    node["text"] = "M-bom"
+                    node["nodes"] = build_tree_layer(current_layer_id)
+                layer.append(node.copy())
+            return layer
+
+        mat_db = SqliteAPI('../db/material.db')
+        query = "select * from material"
+        mat_int = data_frame_to_internal_table(mat_db.dql_with_df(query))
+        mat_db.close()
+
+        # init root node
+        number_of_root = 117
+        tree = []
+        for i in range(number_of_root):
+            for line in build_tree_layer(current_layer_id=0):
+                tree.append(line)
+        return tree
+
+    def get_tree(self):
+        return self.tree
 
     def process(self):
         """
@@ -108,10 +139,11 @@ class CostOptimizer:
         :return: best route of materials(dict)
         """
         materials = self.__get_suggested_all_materials()
-        self.__build_graph(materials)
-        return materials
+        D, Pr = self.__build_graph(materials)
+        return Pr
 
 
 if __name__ == "__main__":
     costOpt = CostOptimizer(1)
-    mat = costOpt.process()
+    tree = costOpt.get_tree()
+    print(tree)

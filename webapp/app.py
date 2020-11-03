@@ -1,5 +1,4 @@
 from flask import Flask, abort
-from flask import jsonify
 from main import CostOptimizer
 
 app = Flask(__name__)
@@ -7,11 +6,10 @@ app = Flask(__name__)
 
 @app.route('/mbom/v1', methods=['GET'])
 def get_purchase_mbom():
-    # opt = CostOptimizer('engine')
-    # result = opt.run()
-    abort(500)
+    opt = CostOptimizer(1)
+    tree = opt.get_tree()
     return {
-        "key": "Andy"
+        "tree": tree
     }
 
 
