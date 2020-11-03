@@ -1,6 +1,8 @@
 from db import SqliteAPI, data_frame_to_internal_table
 from main.CategoryItemOptimizer import CategoryItemOptimizer
 import numpy as np
+from scipy.sparse.csgraph import shortest_path
+from scipy.sparse import csr_matrix
 
 
 class CostOptimizer:
@@ -38,16 +40,67 @@ class CostOptimizer:
             materials.append(material)
         return materials
 
-    @staticmethod
-    def __build_graph(material_list):
+    def __set_graphic_indice(self, material_list):
+        """
+        Set graphic position list
+        :param material_list:
+        :return: list
+        """
+        material_hierarchies = list()
+
+        for line in material_list:
+            material_hierarchy = {
+                "material_id": line["material_id"],
+                "material_type": line["material_type"],
+                "price": line["price"]
+            }
+            ref_materials = list()
+            for material in material_list:
+                if material["ref_type"] == material_hierarchy["material_type"]:
+                    ref_material_line = {
+                        "material_id": material["material_id"],
+                        "material_type": material["material_type"],
+                        "price": material["price"]
+                    }
+                    ref_materials.append(ref_material_line.copy())
+            material_hierarchy["ref_mat"] = ref_materials
+            material_hierarchies.append(material_hierarchy.copy())
+
+            # for graph perspective, we need to insert initial node at beginning place
+        material_hierarchies.insert(0, {
+            "material_id": 0,
+            "material_type": 0,
+            "price": 0,
+            "ref_mat": []
+        })
+        print(material_hierarchies)
+
+    def __build_graph(self, material_list):
         """
         build adjacency matrix
         :param material_list:
         :return: nd.array as graph
         """
         # build graph skeleton
-        adjacency_matrix = np.zeros(
-            (len(material_list) + 1, len(material_list) + 1))  # one more node for initial vertices
+        # adjacency_matrix = np.zeros(
+        #     (len(material_list) + 1, len(material_list) + 1))  # one more node for initial vertices
+        # self.__set_graphic_indice(material_list)
+        adjacency_matrix = np.array([
+            [0, 3474.87, 210.78, 0, 0, 0, 127.09, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 319.31, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 568.57, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 55070.72, 0, 0, 0],
+            [0, self.INIT_EDGE, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 20.28, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 277.33],
+            [0, 0, self.INIT_EDGE, 0, 0, 0, 0, 0, 0]
+        ])
+        graph = csr_matrix(adjacency_matrix)
+        print(graph)
+        D, Pr = shortest_path(graph, directed=False, method='D', return_predecessors=True)
+        print(D[0, 1])
+        print(Pr[0, 1])
 
     def process(self):
         """
