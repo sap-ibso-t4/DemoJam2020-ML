@@ -77,7 +77,7 @@ class CostOptimizer:
         })
         print(material_hierarchies)
 
-    def __build_graph(self, material_list):
+    def __build_graph(self):
         """
         build adjacency matrix
         :param material_list:
@@ -102,36 +102,82 @@ class CostOptimizer:
         d, pr = shortest_path(graph, directed=False, method='D', return_predecessors=True)
         return d, pr
 
-    def __random_generate_tree(self):
-        def build_tree_layer(current_layer_id):
-            current_layer_id = current_layer_id + 1
-            layer = []
-            for i in range(rd.randint(1, 15)):
-                node = {}
-                node["text"] = mat_int[rd.randint(0, len(mat_int) - 1)]["material_id"]
-                node["ref"] = ""
-                rd_choice = rd.choice([True, False])
-                if rd_choice and current_layer_id <= 3:
-                    node["text"] = "M-bom"
-                    node["nodes"] = build_tree_layer(current_layer_id)
-                layer.append(node.copy())
-            return layer
+    def __build_tree_layer(self, current_layer_id, material_internal_table):
+        db = SqliteAPI('../db/material.db')
+        plant = db.dql_with_df('select * from plant')
+        plant.set_index("material_id")
+        vendor = db.dql_with_df('select * from vendor')
+        vendor.set_index("material_id")
+        db.close()
 
+        current_layer_id = current_layer_id + 1
+        layer = []
+        for i in range(rd.randint(2, 3)):
+            random_nr = rd.randint(0, len(material_internal_table) - 1)
+
+            try:
+                plant_id = plant["plant_description"][
+                    plant.index.get_loc(material_internal_table[random_nr]["material_id"])]
+            except KeyError:
+                plant_id = ""
+
+            try:
+                vendor_id = vendor["vendor_description"][
+                    vendor.index.get_loc(material_internal_table[random_nr]["material_id"])]
+            except KeyError:
+                vendor_id = ""
+
+            node = {
+                "text": "Material ID: {}/{}".format(
+                    material_internal_table[random_nr]["material_id"],
+                    material_internal_table[random_nr]["material_desc"]),
+                "ref": "",
+                "gross_weight": material_internal_table[random_nr]["gross_weight"],
+                "net_weight": material_internal_table[random_nr]["net_weight"],
+                "weight_unit": material_internal_table[random_nr]["weight_unit"],
+                "volume": material_internal_table[random_nr]["volumn"],
+                "volume_unit": material_internal_table[random_nr]["volumn_unit"],
+                "length": material_internal_table[random_nr]["length"],
+                "width": material_internal_table[random_nr]["width"],
+                "height": material_internal_table[random_nr]["height"],
+                "uom": material_internal_table[random_nr]["uom"],
+                "price": material_internal_table[random_nr]["price"],
+                "plant": plant_id,
+                "vendor": vendor_id,
+                "currency": material_internal_table[random_nr]["currency"],
+                "rank": material_internal_table[random_nr]["rank"]
+            }
+            rd_choice = rd.choice([True, False])
+            if rd_choice and current_layer_id <= 3:
+                node["nodes"] = self.__build_tree_layer(current_layer_id, material_internal_table)
+            layer.append(node.copy())
+        return layer
+
+    def __random_generate_tree(self):
         mat_db = SqliteAPI('../db/material.db')
         query = "select * from material"
         mat_int = data_frame_to_internal_table(mat_db.dql_with_df(query))
         mat_db.close()
 
         # init root node
-        number_of_root = 117
+        number_of_root = 5
         tree = []
         for i in range(number_of_root):
-            for line in build_tree_layer(current_layer_id=0):
+            for line in self.__build_tree_layer(0, mat_int):
                 tree.append(line)
         return tree
 
     def get_tree(self):
         return self.tree
+
+    def get_expand_tree(self):
+        # mat_db = SqliteAPI('../db/material.db')
+        # query = "select * from material"
+        # mat_int = data_frame_to_internal_table(mat_db.dql_with_df(query))
+        # mat_db.close()
+        #
+        # self.tree[0] = self.__build_tree_layer(0, mat_int)
+        print(self.tree[0])
 
     def process(self):
         """
@@ -145,5 +191,4 @@ class CostOptimizer:
 
 if __name__ == "__main__":
     costOpt = CostOptimizer(1)
-    tree = costOpt.get_tree()
-    print(tree)
+    print(costOpt.get_tree())

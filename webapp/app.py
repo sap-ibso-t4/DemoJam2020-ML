@@ -1,4 +1,4 @@
-from flask import Flask, abort
+from flask import Flask, abort, jsonify
 from main import CostOptimizer
 
 app = Flask(__name__)
@@ -8,6 +8,7 @@ app = Flask(__name__)
 def get_purchase_mbom():
     opt = CostOptimizer(1)
     tree = opt.get_tree()
+    jsonify(tree)
     return {
         "tree": tree
     }
