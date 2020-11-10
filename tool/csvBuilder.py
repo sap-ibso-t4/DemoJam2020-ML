@@ -1,7 +1,6 @@
 import pandas as pd
 import random as rd
 
-
 def random_pick(raw_data):
     return raw_data[rd.randrange(0, len(raw_data), 1)]
 

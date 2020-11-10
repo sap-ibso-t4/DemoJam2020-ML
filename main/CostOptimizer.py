@@ -132,6 +132,8 @@ class CostOptimizer:
                     material_internal_table[random_nr]["material_id"],
                     material_internal_table[random_nr]["material_desc"]),
                 "ref": "",
+                "material_id": material_internal_table[random_nr]["material_id"],
+                "material_desc": material_internal_table[random_nr]["material_desc"],
                 "gross_weight": material_internal_table[random_nr]["gross_weight"],
                 "net_weight": material_internal_table[random_nr]["net_weight"],
                 "weight_unit": material_internal_table[random_nr]["weight_unit"],
@@ -149,6 +151,12 @@ class CostOptimizer:
             }
             rd_choice = rd.choice([True, False])
             if rd_choice and current_layer_id <= 3:
+                if not plant_id:
+                    # set plant by vendor replacement
+                    plant_id = "%s" % vendor_id
+                    plant_id = plant_id.replace("Broker", "Factory")
+                    node["plant"] = plant_id
+                node["vendor"] = ""
                 node["nodes"] = self.__build_tree_layer(current_layer_id, material_internal_table)
             layer.append(node.copy())
         return layer
